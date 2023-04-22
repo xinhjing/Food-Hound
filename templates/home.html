@@ -2,32 +2,185 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top US cities by population</title>
   <style>
-    table, th, td {
-      border: 1px solid black;
-      font-size: medium;
-      font-family: 'Times New Roman';
+    /* iOS style */
+    * {
+      box-sizing: border-box;
+      font-family: "Helvetica Neue", "Lucida Grande", sans-serif;
     }
-    </style>
+    
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    header {
+      background-color: #007aff;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+    
+    h3 {
+      font-size: 18px;
+      margin: 20px 0 10px;
+    }
+    
+    table {
+      border-collapse: collapse;
+      margin: 10px auto;
+      width: 100%;
+    }
+    
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    /* Drop-down menus */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      margin: 10px;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      z-index: 1;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      padding: 12px 16px;
+    }
+    
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+    
+    /* Button */
+    .button {
+      background-color: #007aff;
+      border: none;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      th, td {
+        font-size: 14px;
+        padding: 6px;
+      }
+      
+      h1 {
+        font-size: 20px;
+      }
+      
+      h3 {
+        font-size: 16px;
+      }
+      
+      .button {
+        font-size: 14px;
+        padding: 8px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1><b>Please click the links below for more information!</b></h1>
-    <h3>Top US cities ranked by <a href="/population">population</a>: </h3>
-    <table align="left">
+    <header>
+      <h1>Restaurants for US cities</h1>
+    </header>
+    
+    <div class="dropdown">
+      <button class="button">Filter for locations</button>
+      <div class="dropdown-content">
+        <label for="rank">Rank:</label>
+        <select id="rank">
+          {% for id, temp in city_dict.items() %}
+            <option value="{{id}}">{{id}}</option>
+          {% endfor %}
+        </select>
+        <br>
+        <label for="city">City:</label>
+        <select id="city">
+          {% for id, temp in city_dict.items() %}
+            <option value="{{temp[0]}}">{{temp[0]}}</option>
+          {% endfor %}
+        </select>
+        <br>
+        <label for="state">State:</label>
+        <select id="state">
+          {% for id, temp in city_dict.items() %}
+            <option value="{{temp[1]}}">{{temp[1]}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    
+    <h3>Top US cities ranked by <a href="/population">population</a>:</h3>
+    <table>
         <tr>
-            <th><b>Rank</b></th>
-            <th><b>City (<a href="/compare/city">compare</a>)</b></th>
-            <th><b>State (<a href="/compare/state">compare</a>)</b></th>
-            <th><b>Population</b></th>
+            <th>Rank</th>
+            <th>City <a href="/compare/city">(compare)</a></th>
+            <th>State <a href="/compare/state">(compare)</a></th>
+            <th>Population</th>
         </tr>
         {% for id, temp in city_dict.items() %}
         <tr>
-            <td width="50px" align="center">{{id}}</td>
-            <td width="250px" align="center"><a href="/list/city/{{id}}_{{temp[0]}}">{{temp[0]}}</a></td>
-            <td width="250px" align="center"><a href="/list/state/{{temp[1]}}">{{temp[1]}}</a></td>
-            <td width="250px" align="center">{{temp[2]}}</td>
+            <td>{{id}}</td>
+            <td><a href="/list/city/{{id}}_{{temp[0]}}">{{temp[0]}}</a></td>
+            <td><a href="/list/state/{{temp[1]}}">{{temp[1]}}</a></td>
+            <td>{{temp[2]}}</td>
         </tr>    
         {% endfor %}
     </table>
+    
+    <script>
+      const button = document.querySelector('.button');
+      const rank = document.querySelector('#rank');
+      const city = document.querySelector('#city');
+      const state = document.querySelector('#state');
+      
+      button.addEventListener('click', () => {
+        const selectedRank = rank.value;
+        const selectedCity = city.value;
+        const selectedState = state.value;
+        const rows = document.querySelectorAll('table tr');
+        
+        rows.forEach((row, index) => {
+          if (index > 0) {
+            const rowRank = row.cells[0].textContent;
+            const rowCity = row.cells[1].textContent;
+            const rowState = row.cells[2].textContent;
+            
+            if (selectedRank !== rowRank && selectedCity !== rowCity && selectedState !== rowState) {
+              row.style.display = 'none';
+            } else {
+              row.style.display = '';
+            }
+          }
+        });
+      });
+    </script>
 </body>
 </html>

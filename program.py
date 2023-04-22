@@ -4,10 +4,10 @@ import json
 import secret
 import sqlite3
 import plotly.graph_objs as go
-import plotly
 from plotly.subplots import make_subplots
 from plotly.offline import plot 
-from flask import Flask, render_template, Markup
+from flask import Flask, render_template, Markup, request
+from sklearn.tree import DecisionTreeClassifier
 
 DB_NAME = 'final_project.sqlite'
 API_KEY = secret.API_KEY
@@ -545,6 +545,37 @@ def flask_plot(xvals, yvals, title, fig_type):
     fig_div = plot(fig, output_type="div")
     return fig_div
 
+def flask_plot_tree(xvals, yvals, title, fig_type, chart_data = None):
+    ''' this function generetes either bar chart or pie chart 
+        and return the plot that is used for displaying in
+        the html webpage
+
+    Parammeters
+    -----------
+    xvals: list
+        a list of x values
+    yvals: list
+        a list of y values that correspond to the x values
+    title: string
+        the title of the plot
+    fig_type: string
+        either "bar" or "pie" that defines the output plot type
+
+    Returns
+    --------
+    fig_div: string
+        the plot that is readable by html files
+    '''
+    fig = make_subplots(rows=1, cols=1, specs=[[{"type": fig_type}]], subplot_titles=(title))
+    if fig_type == 'pie':
+        fig.add_trace(go.Pie(labels=xvals, values=yvals), row=1, col=1)
+        fig.update_traces(hole=.4, hoverinfo="label+percent+name")
+    elif fig_type == 'bar':
+        fig.add_trace(go.Bar(x=xvals, y=yvals, customdata=[chart_data[category] for category in xvals]))
+    
+    fig.update_layout(annotations=[dict(text=title, font_size=25, showarrow=False)])
+    return chart_data
+
 def barplot_city_population():
     ''' a function that generate a barplot for the population 
         according to the cities
@@ -733,6 +764,141 @@ def barplot_avgrating_each_category(name, target, id_pos=None):
     xvals, yvals = get_avg_and_sort(results)
     title = 'Average Rating of Restaurants By Category in {} {}'.format(name, target.capitalize())
     return flask_plot(xvals, yvals, title, 'bar')
+
+
+def treeplot_avgrating_each_category(name, target, id_pos=None):
+    ''' a function that generate a barplot for the average rating 
+        of differnt restaurant types in the city or state specified 
+
+    Parameters
+    ----------
+    name: string
+        a city name or a state name
+    target: string
+        indicates the name is a city or a state
+    id_pos: int
+        the id that uniquely identify a city
+
+    Returns
+    -------
+    string
+        the plot that is readable by html files
+    '''
+    name = process_name(name)
+    query = '''SELECT r.Category, r.Rating, r.Name FROM Restaurants as r
+                JOIN Cities as c ON c.Id=r.City_id'''
+    if target == 'city':
+        query += ''' WHERE r.City="{}" AND c.Id={}'''.format(name, id_pos)
+    elif target == 'state':
+        query += ''' WHERE c.State="{}"'''.format(name)
+    
+    results = searchDB(query)
+    xvals, yvals = get_avg_and_sort(results)
+    category_restaurants = {}
+    for row in results:
+        category = row[0]
+        restaurant = row[2]  # Assuming the restaurant name is in the 3rd column of the result
+        if category not in category_restaurants:
+            category_restaurants[category] = []
+        category_restaurants[category].append(restaurant)
+    #return category_restaurants
+    title = 'Average Rating of Restaurants By Category in {} {}'.format(name, target.capitalize())
+    #return flask_plot(xvals, yvals, title, 'bar')
+    return flask_plot_tree(xvals, yvals, title, 'bar', chart_data=category_restaurants)
+
+def barplot_avgrating_each_category(name, target, id_pos=None):
+    ''' a function that generate a barplot for the average rating 
+        of differnt restaurant types in the city or state specified 
+
+    Parameters
+    ----------
+    name: string
+        a city name or a state name
+    target: string
+        indicates the name is a city or a state
+    id_pos: int
+        the id that uniquely identify a city
+
+    Returns
+    -------
+    string
+        the plot that is readable by html files
+    '''
+    name = process_name(name)
+    query = '''SELECT r.Category, r.Rating FROM Restaurants as r
+                JOIN Cities as c ON c.Id=r.City_id'''
+    if target == 'city':
+        query += ''' WHERE r.City="{}" AND c.Id={}'''.format(name, id_pos)
+    elif target == 'state':
+        query += ''' WHERE c.State="{}"'''.format(name)
+    
+    results = searchDB(query)
+    xvals, yvals = get_avg_and_sort(results)
+    title = 'Average Rating of Restaurants By Category in {} {}'.format(name, target.capitalize())
+    return flask_plot(xvals, yvals, title, 'bar')
+
+def barplot_avgrating_each_category(name, target, id_pos=None):
+    ''' a function that generate a barplot for the average rating 
+        of differnt restaurant types in the city or state specified 
+
+    Parameters
+    ----------
+    name: string
+        a city name or a state name
+    target: string
+        indicates the name is a city or a state
+    id_pos: int
+        the id that uniquely identify a city
+
+    Returns
+    -------
+    string
+        the plot that is readable by html files
+    '''
+    name = process_name(name)
+    query = '''SELECT r.Category, r.Rating FROM Restaurants as r
+                JOIN Cities as c ON c.Id=r.City_id'''
+    if target == 'city':
+        query += ''' WHERE r.City="{}" AND c.Id={}'''.format(name, id_pos)
+    elif target == 'state':
+        query += ''' WHERE c.State="{}"'''.format(name)
+    
+    results = searchDB(query)
+    xvals, yvals = get_avg_and_sort(results)
+    title = 'Average Rating of Restaurants By Category in {} {}'.format(name, target.capitalize())
+    return flask_plot(xvals, yvals, title, 'bar')
+
+def barplot_avgrating_each_category(name, target, id_pos=None):
+    ''' a function that generate a barplot for the average rating 
+        of differnt restaurant types in the city or state specified 
+
+    Parameters
+    ----------
+    name: string
+        a city name or a state name
+    target: string
+        indicates the name is a city or a state
+    id_pos: int
+        the id that uniquely identify a city
+
+    Returns
+    -------
+    string
+        the plot that is readable by html files
+    '''
+    name = process_name(name)
+    query = '''SELECT r.Category, r.Rating FROM Restaurants as r
+                JOIN Cities as c ON c.Id=r.City_id'''
+    if target == 'city':
+        query += ''' WHERE r.City="{}" AND c.Id={}'''.format(name, id_pos)
+    elif target == 'state':
+        query += ''' WHERE c.State="{}"'''.format(name)
+    
+    results = searchDB(query)
+    xvals, yvals = get_avg_and_sort(results)
+    title = 'Average Rating of Restaurants By Category in {} {}'.format(name, target.capitalize())
+    return flask_plot(xvals, yvals, title, 'bar')
+
 
 def barplot_avgprice_each_category(name, target, id_pos=None):
     ''' a function that generate a barplot for the average price 
@@ -1068,6 +1234,54 @@ def choice_list(city_or_state, nm):
         name = process_name(id_city[1].replace('%20', ' '))
         return render_template('list.html', city_or_state=city_or_state, name=name, id_pos=id_pos)
 
+@app.route('/tree/<city_or_state>/<nm>/<choice>')
+def tree(city_or_state, nm, choice):
+    #print(f"nm: {nm}")  # Debug print
+    if city_or_state == 'state':
+        name = process_name(nm.replace('%20', ' '))
+        #######
+        #name = f"{id_pos}_{name}"
+        if choice == 'treeplot_avgrating_each_category':
+            chart_data = treeplot_avgrating_each_category(name, city_or_state)
+            # Convert the fig object to JSON and pass it to your template
+            #serialized_figure = json.dumps(figure, cls=PlotlyJSONEncoder)
+            #return render_template('plot_restaurant.html', chart_data=chart_data)
+
+            tree_data = [
+                {
+                    "text": category,
+                    "children": [{"text": restaurant} for restaurant in restaurants],
+                }
+                for category, restaurants in chart_data.items()
+            ]
+            return render_template('tree.html',tree_data=tree_data, name=name)
+            #return render_template('plot_restaurant.html', figure=Markup(serialized_figure), chart_data=chart_data, name=name)
+        else:
+            return "Invalid choice"
+    else:
+        id_city = nm.split('_')
+        id_pos = int(id_city[0])
+        name = process_name(id_city[1].replace('%20', ' '))
+        #name = f"{id_pos}_{name}"
+
+        if choice == 'treeplot_avgrating_each_category':
+            chart_data = treeplot_avgrating_each_category(name, city_or_state, id_pos=id_pos)
+            # Convert the fig object to JSON and pass it to your template
+            #serialized_figure = json.dumps(figure, cls=PlotlyJSONEncoder)
+            #return render_template('plot_restaurant.html', chart_data=chart_data)
+            tree_data = [
+                {
+                    "text": category,
+                    "children": [{"text": restaurant} for restaurant in restaurants],
+                }
+                for category, restaurants in chart_data.items()
+            ]
+            return render_template('tree.html', tree_data=tree_data, name=name)
+            #return render_template('plot_restaurant.html', figure=Markup(serialized_figure), chart_data=chart_data, name=name)
+        else:
+            return "Invalid choice"
+
+
 @app.route('/plot/<city_or_state>/<nm>/<choice>')
 def data(city_or_state, nm, choice):
     ''' a function designs the webpage that contains the plot
@@ -1169,7 +1383,13 @@ def compare_choice(city_or_state, rating_or_price):
     
     return render_template('plot.html', figure=Markup(figure))
 
+@app.route("/")
+def index():
+    with open("data.json", "r") as json_file:
+        data = json.load(json_file)
+    return render_template("index.html", data=data)
+
 if __name__ == '__main__':
     build_database()
     app.run(debug=True, use_reloader=False)
-  
+

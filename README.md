@@ -1,29 +1,27 @@
-# WN2020 SI 507 Final Project
+# Restaurants for US cities Web App
 
-## Introduction
-This project aims to build a basic web application, which allows the user to get information about cities in the US and the visualized data for restaurants in different cities. Several basic programming techniques are adopted in the project, which includes accessing data efficiently with caching via scraping and web API, using SQLite for data manipulating, using Unit Test for verification and using Plotly and Flask for data visualization, etc.
+This project is a basic web application that provides information about US cities and visualizes restaurant data for different cities. The app uses various programming techniques such as data caching, web scraping, SQLite, Unit Testing, Plotly, and Flask.
 
 ## Data Sources
-(1) The web from Wikipedia, which is the data source for the table "Cities" in the database. (https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population). 
 
-(2) Yelp Fusion, which is the data source for the table "Restaurants" in the database.
-(https://www.yelp.com/developers/documentation/v3/business_search)
+1. **Wikipedia** - Source of the "Cities" table in the database. [Link](https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population)
+2. **Yelp Fusion** - Source of the "Restaurants" table in the database. [Link](https://www.yelp.com/developers/documentation/v3/business_search)
 
-## Run the Program
-### Step 1: Apply an API Key for Yelp Fusion
-(1) Go to "https://www.yelp.com/developers/documentation/v3/authentication" and create your app according to the instruction. 
+## Getting Started
 
-(2) Create a new python file "secret.py" in the same folder as "program.py". And add the code:
+### 1. Obtain Yelp Fusion API Key
+1. Visit [Yelp API Authentication](https://www.yelp.com/developers/documentation/v3/authentication) and follow the instructions to create your app and get an API key.
+2. Create a new Python file named `secret.py` in the same folder as `program.py` and add the following code:
 ```
 API_KEY = '<your key>'
 ```  
-### Step 2: Install packages
+### 2. Install required packages
 ```
 $ pip install -r requirements.txt --user
 ```  
 
-### Step 3: Run program.py  
+### 3. Run the web application  
 ```  
 $ python program.py
 ```  
-### Step 4: Open "http://127.0.0.1:5000/ " in a browser
+### 4. Open "http://127.0.0.1:5000/ " in a browser
